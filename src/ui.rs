@@ -25,6 +25,16 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         )
         .split(f.size());
 
+    let ver_chunks = Layout::default()
+        .constraints(
+            [
+                Constraint::Percentage(50),
+                Constraint::Percentage(50),
+            ]
+            .as_ref(),
+        )
+        .direction(Direction::Vertical)
+        .split(chunks[0]);
     // Iterate through all elements in the `items` app and append some debug text to it.
     let items: Vec<ListItem> = app
         .items
@@ -53,7 +63,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .highlight_symbol(">> ");
 
     // We can now render the item list
-    f.render_stateful_widget(items, chunks[0], &mut app.items.state);
+    f.render_stateful_widget(items, ver_chunks[1], &mut app.items.state);
 
     // This is the central timer section
     let mut centeral_time = app.time.to_string();
