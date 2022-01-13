@@ -82,6 +82,7 @@ struct App<'a> {
     keybinds: [(&'a str, &'a str); 26],
     time: i32,
     timing_status: TimerStatus,
+    ticks_with_no_key: u32,
 }
 
 impl<'a> App<'a> {
@@ -126,12 +127,13 @@ impl<'a> App<'a> {
             ],
             time: 0,
             timing_status: TimerStatus::PAUSED,
+            ticks_with_no_key: 0,
         }
     }
 
     pub fn space(&mut self) {
         if self.timing_status != TimerStatus::COUNTDOWN {
-            self.time = 15;
+            self.time = 1500;
             self.timing_status = TimerStatus::COUNTDOWN;
         }
     }
@@ -143,9 +145,16 @@ impl<'a> App<'a> {
             TimerStatus::PAUSED => {}
         }
 
-        if key_pressed_in_tick == true {return} // Stops af a key was pressed
-
-        if self.timing_status == TimerStatus::COUNTDOWN { // If no key was pressed and the timer is counting down. i.e. The spacebar was released.
+        if key_pressed_in_tick == true { // Stops if a key was pressed
+            self.ticks_with_no_key = 0;
+            return
+        }
+        if self.timing_status != TimerStatus::COUNTDOWN {return} // Stops if the timer is not counting down
+        
+        // We have to wait 600 ms because the termnal receives repeating keys, so if it's pressed again within 600 ms we can assume it is still being held
+        self.ticks_with_no_key += 1;
+        if self.ticks_with_no_key > 60 { // If no key was pressed and the timer is counting down. i.e. The spacebar was released.
+            self.ticks_with_no_key = 0;
             self.time = 0;
             self.timing_status = TimerStatus::COUNTUP;
         }
@@ -161,7 +170,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // create app and run it
-    let tick_rate = Duration::from_millis(1000);
+    let tick_rate = Duration::from_millis(10);
     let app = App::new();
     let res = run_app(&mut terminal, app, tick_rate);
 
@@ -259,9 +268,16 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     f.render_stateful_widget(items, chunks[0], &mut app.items.state);
 
     // This is the central timer section
+    let mut centeral_time = app.time.to_string();
+    match centeral_time.len() {
+        0 => {centeral_time = "0.00".to_owned()},
+        1 => {centeral_time = "0.0".to_owned() + &centeral_time},
+        2 => {centeral_time = "0.".to_owned() + &centeral_time},
+        _ => {centeral_time.insert(app.time.to_string().len()-2, '.');}
+    }
     let text = vec![
         Spans::from(Span::styled(
-            app.time.to_string(),
+            centeral_time,
             Style::default().add_modifier(Modifier::ITALIC),
         )),
         Spans::from(Span::styled("Second line", Style::default().fg(Color::Red))),
