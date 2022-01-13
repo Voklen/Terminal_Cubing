@@ -71,20 +71,17 @@ impl<T> StatefulList<T> {
     }
 }
 
-/// This struct holds the current state of the app. In particular, it has the `items` field which is a wrapper
-/// around `ListState`. Keeping track of the items state let us render the associated widget with its state
-/// and have access to features such as natural scrolling.
-///
-/// Check the event handling at the bottom to see how to change the state on incoming events.
-/// Check the drawing logic for items on how to specify the highlighting style for selected items.
+//This struct holds the current state of the app.
 struct App<'a> {
     items: StatefulList<(&'a str, usize)>,
-    keybinds: [(&'a str, &'a str); 26],
+    keybinds: [(&'a str, &'a str); 20],
     time: i32,
     timing_status: TimerStatus,
     ticks_with_no_key: u32,
 }
-
+/*
+Set starting values and define functions
+*/
 impl<'a> App<'a> {
     fn new() -> App<'a> {
         App {
@@ -118,12 +115,6 @@ impl<'a> App<'a> {
                 ("Event18", "ERROR"),
                 ("Event19", "INFO"),
                 ("Event20", "INFO"),
-                ("Event21", "WARNING"),
-                ("Event22", "INFO"),
-                ("Event23", "INFO"),
-                ("Event24", "WARNING"),
-                ("Event25", "INFO"),
-                ("Event26", "INFO"),
             ],
             time: 0,
             timing_status: TimerStatus::PAUSED,
@@ -161,6 +152,9 @@ impl<'a> App<'a> {
     }
 }
 
+/*
+Setup, run the program and cleanup
+*/
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
@@ -190,6 +184,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/*
+Main loop
+*/
 fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
     mut app: App,
@@ -225,6 +222,9 @@ fn run_app<B: Backend>(
     }
 }
 
+/*
+Basically the HTML/CSS of the program
+*/
 fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // Create two chunks with equal horizontal screen space
     let chunks = Layout::default()
