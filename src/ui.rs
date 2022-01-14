@@ -67,6 +67,26 @@ fn draw_left_section<B: Backend>(f: &mut Frame<B>, app: &mut App, main_chunk: Re
 
     // We can now render the item list
     f.render_stateful_widget(items, chunks[1], &mut app.items.state);
+
+    let text = vec![
+        Spans::from(Span::styled(
+        "       _____",Style::default())),Spans::from(Span::styled(
+        "    __/  |  \\__", Style::default())),Spans::from(Span::styled(
+        "   /     |     \\", Style::default())),Spans::from(Span::styled(
+        "  /      |   /  \\", Style::default())),Spans::from(Span::styled(
+        " |       | /     |", Style::default())),Spans::from(Span::styled(
+        "|        O        |", Style::default())),Spans::from(Span::styled(
+        " |   ___    _    |", Style::default())),Spans::from(Span::styled(
+        " \\   |    /    /", Style::default())),Spans::from(Span::styled(
+        "  \\  |    \\_  /", Style::default())),Spans::from(Span::styled(
+        "   \\_________/", Style::default()))
+    ];
+    let time_text = tui::widgets::Paragraph::new(text)
+        .block(Block::default().borders(Borders::ALL))
+        .style(Style::default().fg(Color::White).bg(Color::Black))
+        .alignment(tui::layout::Alignment::Center)
+        .wrap(tui::widgets::Wrap { trim: true });
+    f.render_widget(time_text, chunks[0]);
 }
 
 fn draw_central_timer<B: Backend>(f: &mut Frame<B>, app: &mut App, main_chunk: Rect) {
