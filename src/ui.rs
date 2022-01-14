@@ -40,17 +40,11 @@ fn draw_left_section<B: Backend>(f: &mut Frame<B>, app: &mut App, main_chunk: Re
         .split(main_chunk);
     // Iterate through all elements in the `items` app and append some debug text to it.
     let items: Vec<ListItem> = app
-        .items
+        .times
         .items
         .iter()
         .map(|i| {
-            let mut lines = vec![Spans::from(i.0)];
-            for _ in 0..i.1 {
-                lines.push(Spans::from(Span::styled(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                    Style::default().add_modifier(Modifier::ITALIC),
-                )));
-            }
+            let lines = vec![Spans::from(i.to_string())];
             ListItem::new(lines).style(Style::default().fg(Color::Black).bg(Color::White))
         })
         .collect();
@@ -66,7 +60,7 @@ fn draw_left_section<B: Backend>(f: &mut Frame<B>, app: &mut App, main_chunk: Re
         .highlight_symbol(">> ");
 
     // We can now render the item list
-    f.render_stateful_widget(items, chunks[1], &mut app.items.state);
+    f.render_stateful_widget(items, chunks[1], &mut app.times.state);
 
     let text = vec![
         Spans::from(Span::styled(

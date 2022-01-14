@@ -72,7 +72,7 @@ impl<T> StatefulList<T> {
 
 //This struct holds the current state of the app.
 pub struct App<'a> {
-    items: StatefulList<(&'a str, usize)>,
+    times: StatefulList<u32>,
     keybinds: [(&'a str, &'a str); 20],
     time: i32,
     timing_status: TimerStatus,
@@ -84,14 +84,11 @@ Set starting values and define functions
 impl<'a> App<'a> {
     fn new() -> App<'a> {
         App {
-            items: StatefulList::with_items(vec![
-                ("Item0", 1),
-                ("Item1", 2),
-                ("Item2", 1),
-                ("Item3", 3),
-                ("Item4", 1),
-                ("Item5", 4),
-                ("Item6", 1),
+            times: StatefulList::with_items(vec![
+                1,
+                2,
+                4, // In the wrong order to check if it displays it this way
+                3,
             ]),
             keybinds: [
                 ("Quit", "q"),
@@ -205,9 +202,9 @@ fn run_app<B: Backend>(
                 match key.code {
                     KeyCode::Char(' ') => app.space(),
                     KeyCode::Char('q') => return Ok(()),
-                    KeyCode::Left => app.items.unselect(),
-                    KeyCode::Down => app.items.next(),
-                    KeyCode::Up => app.items.previous(),
+                    KeyCode::Left => app.times.unselect(),
+                    KeyCode::Down => app.times.next(),
+                    KeyCode::Up => app.times.previous(),
                     _ => {}
                 }
             }
