@@ -132,19 +132,26 @@ impl<'a> App<'a> {
             TimerStatus::PAUSED => {}
         }
 
-        if key_pressed_in_tick == true { // Stops if a key was pressed
+        if key_pressed_in_tick == true {
             self.ticks_with_no_key = 0;
             return
         }
-        if self.timing_status != TimerStatus::COUNTDOWN {return} // Stops if the timer is not counting down
-        
-        // We have to wait 600 ms because the termnal receives repeating keys, so if it's pressed again within 600 ms we can assume it is still being held
+        // No key was pressed this tick
+
+        if self.timing_status != TimerStatus::COUNTDOWN {return}
+        // No key was pressed this tick and the timer is counting down
+
         self.ticks_with_no_key += 1;
-        if self.ticks_with_no_key > 60 { // If no key was pressed and the timer is counting down. i.e. The spacebar was released.
-            self.ticks_with_no_key = 0;
-            self.time = 0;
-            self.timing_status = TimerStatus::COUNTUP;
-        }
+
+        /*
+        We have to wait 600 ms because the termnal receives repeating keys, so if it's pressed again within 600 ms we can assume it is still being held
+        */
+        if self.ticks_with_no_key > 60 {return}
+        // The key was not pressed for 600ms (i.e. The key was released) and the timer is counting down.
+
+        self.ticks_with_no_key = 0;
+        self.time = 0;
+        self.timing_status = TimerStatus::COUNTUP;
     }
 }
 
