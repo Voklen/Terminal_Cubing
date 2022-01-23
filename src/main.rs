@@ -77,6 +77,7 @@ pub struct App<'a> {
     time: i32,
     timing_status: TimerStatus,
     ticks_with_no_key: u32,
+    key_released_since_timer_start: bool,
 }
 /*
 Set starting values and define functions
@@ -115,13 +116,7 @@ impl<'a> App<'a> {
             time: 0,
             timing_status: TimerStatus::PAUSED,
             ticks_with_no_key: 0,
-        }
-    }
-
-    pub fn space(&mut self) {
-        if self.timing_status != TimerStatus::COUNTDOWN {
-            self.time = 1500;
-            self.timing_status = TimerStatus::COUNTDOWN;
+            key_released_since_timer_start: false,
         }
     }
 
@@ -133,6 +128,10 @@ impl<'a> App<'a> {
         }
 
         if key_pressed_in_tick == true {
+            if self.timing_status == TimerStatus::PAUSED && self.ticks_with_no_key == 0{
+                self.time = 1500;
+                self.timing_status = TimerStatus::COUNTDOWN;
+            }
             self.ticks_with_no_key = 0;
             return
         }
@@ -196,7 +195,7 @@ fn run_app<B: Backend>(
     tick_rate: Duration,
 ) -> io::Result<()> {
     let mut last_tick = Instant::now();
-    let mut key_pressed_in_tick = false;
+    let mut timer_key_pressed_in_tick = false;
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;
 
@@ -205,9 +204,8 @@ fn run_app<B: Backend>(
             .unwrap_or_else(|| Duration::from_secs(0));
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
-                key_pressed_in_tick = true;
                 match key.code {
-                    KeyCode::Char(' ') => app.space(),
+                    KeyCode::Char(' ') => timer_key_pressed_in_tick = true,
                     KeyCode::Char('q') => return Ok(()),
                     KeyCode::Left => app.times.unselect(),
                     KeyCode::Down => app.times.next(),
@@ -219,8 +217,8 @@ fn run_app<B: Backend>(
         if last_tick.elapsed() >= tick_rate {
             last_tick = Instant::now();
 
-            app.update_timer(key_pressed_in_tick);
-            key_pressed_in_tick = false;
+            app.update_timer(timer_key_pressed_in_tick);
+            timer_key_pressed_in_tick = false;
         }
     }
 }
